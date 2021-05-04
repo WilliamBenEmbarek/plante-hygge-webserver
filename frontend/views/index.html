@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<body>
+<div class="row justify-content-md-center">
+    <div class="col-8" style="padding-top: 20px">
+        <h6>Click Go live to fetch Data </h6>
+    </div>
+</div>
+<div class="row justify-content-md-center">
+    <div class="col-8">
+
+        <div id="selectSymbol">
+            <form id="idForm">
+                <button name="submit">Go live</button>
+            </form>
+        </div>
+    </div>
+</div>
+<table class ="columns">
+    <tr>
+        <td><div id="humChart" style="border: 1px solid rgb(0, 0, 0)"></div></td>
+        <td><div id="tempChart" style="border: 1px solid rgb(0, 0, 0)"></div></td>     
+    </tr>
+    <tr>
+        <td><div id="moistChart" style="border: 1px solid rgb(0, 0, 0)"></div></td>
+        <td><div id="sunChart" style="border: 1px solid rgb(0, 0, 0)"></div></td>
+    </tr>
+</table>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    google.charts.load('current', {packages: ['corechart', 'line']});
+    google.setOnLoadCallback(Initialize);
+    var humidityData;
+    var temperatureData;
+    var moistData;
+    var sunData;
+
+    var optionsHum = {
+            hAxis: {
+                title: 'Time',
+                textPosition: 'none'
+            },
+            vAxis: {
+                title: 'Humidity',
+            },
+            colors: ['#a52714'],
+            crosshair: {
+                color: '#000',
+                trigger: 'selection'
+            },
+            width: 1000,
+            height: 400,
+        }
+
+    var optionsTemp = {
+            hAxis: {
+                title: 'Time',
+                textPosition: 'none'
+            },
+            vAxis: {
+                title: 'Temperature',
+            },
+            colors: ['#a52714'],
+            crosshair: {
+                color: '#000',
+                trigger: 'selection'
+            },
+            width: 1000,
+            height: 400,
+        }
+
+    var optionsMoist = {
+            hAxis: {
+                title: 'Time',
+                textPosition: 'none'
+            },
+            vAxis: {
+                title: 'Moistness',
+            },
+            colors: ['#a52714'],
+            crosshair: {
+                color: '#000',
+                trigger: 'selection'
+            },
+            width: 1000,
+            height: 400,
+        }
+
+    var optionsSun = {
+            hAxis: {
+                title: 'Time',
+                textPosition: 'none'
+            },
+            vAxis: {
+                title: 'Sun',
+            },
+            colors: ['#a52714'],
+            crosshair: {
+                color: '#000',
+                trigger: 'selection'
+            },
+            width: 1000,
+            height: 400,
+        }
+
+    function Initialize(){
+        humidityData = new google.visualization.DataTable();
+        temperatureData = new google.visualization.DataTable();
+        moistData = new google.visualization.DataTable();
+        sunData = new google.visualization.DataTable();
+        humidityData.addColumn('number', 'X');
+        humidityData.addColumn('number', 'Y');
+        temperatureData.addColumn('number', 'X');
+        temperatureData.addColumn('number', 'Y');
+        moistData.addColumn('number', 'X');
+        moistData.addColumn('number', 'Y');
+        sunData.addColumn('number', 'X');
+        sunData.addColumn('number', 'Y');
+        drawHumidityChart();
+        drawMoistureChart();
+        drawSunChart();
+        drawTemperatureChart();
+    }
+
+
+    function drawHumidityChart() {
+        var humChart = new google.visualization.LineChart(document.getElementById('humChart'));
+        humChart.draw(humidityData, optionsHum);
+    }
+
+    function drawTemperatureChart() {
+        var tempChart = new google.visualization.LineChart(document.getElementById('tempChart'));
+        tempChart.draw(temperatureData, optionsTemp);
+    }
+
+    function drawMoistureChart() {
+        var moistChart = new google.visualization.LineChart(document.getElementById('moistChart'));
+        moistChart.draw(moistData, optionsMoist);
+    }
+
+    function drawSunChart() {
+        var sunChart = new google.visualization.LineChart(document.getElementById('sunChart'));
+        sunChart.draw(sunData, optionsSun);
+    }
+
+    function streamLiveData(){
+        if ("WebSocket" in window) {
+            console.log("WebSocket is supported by your Browser!");
+
+            // Let us open a web socket
+            var url = "localhost:9000";
+            console.log(url);
+            var ws = new WebSocket("ws://"+url+"/ws");
+
+            ws.onmessage = function(event) {
+
+                console.log(`[message] Data received from server: ${event.data}`);
+
+                var jsonData = JSON.parse(`${event.data}`);
+                //SUBSTRING MAYBE?
+                /*
+                var graphData = jsonData.Data.split(";")
+                humVal = parseInt(graphData[0].split(':')[1])
+                tempVal = parseInt(graphData[1].split(':')[1])
+                moistVal = parseInt(graphData[2].split(':')[1])
+                sunVal = parseInt(graphData[3].split(':')[1])
+                */
+                
+                humVal = parseInt(event.data.substring(13,18))
+                tempVal = parseInt(event.data.substring(18,23))
+                moistVal = parseInt(event.data.substring(23, 28))
+                sunVal = parseInt(event.data.substring(28, 34))
+
+                humidityData.addRows([[Date.now(),sunVal]]);
+                temperatureData.addRows([[Date.now(),tempVal]]);
+                moistData.addRows([[Date.now(),moistVal]]);
+                sunData.addRows([[Date.now(),sunVal]])
+                
+                drawHumidityChart();
+                drawSunChart();
+                drawTemperatureChart();
+                drawMoistureChart();
+            };
+
+            ws.onclose = function(event) {
+                if (event.wasClean) {
+                    console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                } else {
+                    // e.g. server process killed or network down
+                    // event.code is usually 1006 in this case
+                    console.log('[close] Connection died');
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.log(`[error] ${error.message}`);
+            };
+
+        } else {
+
+            // The browser doesn't support WebSocket
+            console.log("WebSocket NOT supported by your Browser!");
+        }
+    }
+
+    $("#idForm").submit(function(e) {
+        e.preventDefault(); // avoid to execute the actual submit of the form.
+        streamLiveData();
+    });
+</script>
