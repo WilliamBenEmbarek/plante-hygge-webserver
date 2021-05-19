@@ -153,7 +153,7 @@
             console.log("WebSocket is supported by your Browser!");
 
             // Let us open a web socket
-            var url = "plante-hygge.embar.xyz:9000";
+            var url = "localhost:9000";
             console.log(url);
             var ws = new WebSocket("ws://"+url+"/ws");
 
@@ -162,21 +162,13 @@
                 console.log(`[message] Data received from server: ${event.data}`);
 
                 var jsonData = JSON.parse(`${event.data}`);
-                //SUBSTRING MAYBE?
-                /*
-                var graphData = jsonData.Data.split(";")
-                humVal = parseInt(graphData[0].split(':')[1])
-                tempVal = parseInt(graphData[1].split(':')[1])
-                moistVal = parseInt(graphData[2].split(':')[1])
-                sunVal = parseInt(graphData[3].split(':')[1])
-                */
                 
                 humVal = parseInt(event.data.substring(13,18))
                 tempVal = parseInt(event.data.substring(18,23))
                 moistVal = parseInt(event.data.substring(23, 28))
                 sunVal = parseInt(event.data.substring(28, 34))
 
-                humidityData.addRows([[Date.now(),sunVal]]);
+                humidityData.addRows([[Date.now(),humVal]]);
                 temperatureData.addRows([[Date.now(),tempVal]]);
                 moistData.addRows([[Date.now(),moistVal]]);
                 sunData.addRows([[Date.now(),sunVal]])

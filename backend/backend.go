@@ -108,24 +108,8 @@ func done(control chan bool) {
 	control <- true
 }
 
-/*func simulateData() {
-	setInterval(func() {
-		data := dataPacket{
-			Cmd:  "Pepe",
-			EUI:  "Papa",
-			Ts:   1,
-			Ack:  false,
-			Bat:  1,
-			Fcnt: 1,
-			Port: 1,
-			Data: fakeData[fakeIndex%10],
-		}
-		dataChannel <- data
-		fakeIndex++
-	}, 2500)
-	fmt.Println("Yeetus Deletus")
-}*/
 /*
+This is from when we used the IoTNet connection, may as well keep the code
 func fetchDataCibicom(c echo.Context) error {
 	//fmt.Println(c.Request())
 	decoder := json.NewDecoder(c.Request().Body)
